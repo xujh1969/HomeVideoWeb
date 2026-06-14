@@ -1,241 +1,376 @@
+<p align="center">
+  <img src="https://img.icons8.com/fluency/96/video-projector.png" alt="HomeVideoWeb" width="96" />
+</p>
 
-<a href="https://github.com/VoltAgent/voltagent">
-     <img width="1500"  alt="claude-skills" src="https://cdn.voltagent.dev/awesome-repo/logo.json.svg" />
-</a>
+<h1 align="center">家庭影视平台 · HomeVideoWeb</h1>
 
+<p align="center">
+  一个自托管的家庭影视媒体库管理系统，支持自动刮削元数据、多源扫描、在线播放与搜索。
+  <br />
+  灵感来源于网易爆米花风格，专为本地媒体收藏设计。
+</p>
 
-<br/>
-<br/>
+<p align="center">
+  <img src="https://img.shields.io/badge/TypeScript-007ACC?style=flat-square&logo=typescript&logoColor=white" />
+  <img src="https://img.shields.io/badge/React-20232A?style=flat-square&logo=react&logoColor=61DAFB" />
+  <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white" />
+  <img src="https://img.shields.io/badge/Express-000000?style=flat-square&logo=express&logoColor=white" />
+  <img src="https://img.shields.io/badge/SQLite-003B57?style=flat-square&logo=sqlite&logoColor=white" />
+  <img src="https://img.shields.io/badge/Vite-646CFF?style=flat-square&logo=vite&logoColor=white" />
+</p>
 
-<div align="center">
-    <strong>Curated collection of DESIGN.md analysis by developer focused websites.</strong>
-    <br />
-    <br />
+---
 
-</div>
+## 目录
 
-<div align="center">
+- [主要功能](#主要功能)
+- [快速开始](#快速开始)
+- [环境配置](#环境配置)
+- [目录结构](#目录结构)
+- [API 概览](#api-概览)
+- [文件名规范](#文件名规范)
+- [媒体源配置](#媒体源配置)
+- [构建部署](#构建部署)
+- [技术栈](#技术栈)
 
-[![Awesome](https://awesome.re/badge.svg)](https://awesome.re)
-![DESIGN.md Count](https://img.shields.io/badge/DESIGN.md%20count-73-10b981?style=classic)
-[![Last Update](https://img.shields.io/github/last-commit/VoltAgent/awesome-design-md?label=Last%20update&style=classic)](https://github.com/VoltAgent/awesome-design-md)
-[![Discord](https://img.shields.io/discord/1361559153780195478.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://s.voltagent.dev/discord)
+---
 
-</div>
-</div>
+## 主要功能
 
-# Awesome DESIGN.md
+### 📚 多源媒体库管理
 
-Copy a DESIGN.md into your project, tell your AI agent “build me a page that looks like this,” and generate high-quality UI that stays visually consistent with the design language.
+支持 **本地磁盘**、**SMB 共享**、**NFS 共享** 等多种来源的影片扫描与管理。智能增量扫描，自动识别新增/移除的文件，扫描进度实时反馈。
 
-Built with real design depth — including analyzed patterns, tokens, and rules — for high-quality UI generation, not surface-level outputs.
+### 🏷️ 智能文件名解析
 
+自动解析符合以下规范的文件名，提取评分、分类、标题等信息：
 
-## What is DESIGN.md?
+```
+【8.5】【动作】利刃出鞘.mp4
+【9.2】【剧情】肖申克的救赎.1994.mp4
+```
 
-[DESIGN.md](https://stitch.withgoogle.com/docs/design-md/overview/) is a new concept introduced by Google Stitch. A plain-text design system document that AI agents read to generate consistent UI.
+### 🌐 自动元数据刮削
 
-It's just a markdown file. No Figma exports, no JSON schemas, no special tooling. Drop it into your project root and any AI coding agent or Google Stitch instantly understands how your UI should look. Markdown is the format LLMs read best, so there's nothing to parse or configure.
+支持多个数据源自动获取元数据：
 
-| File | Who reads it | What it defines |
-|------|-------------|-----------------|
-| `AGENTS.md` | Coding agents | How to build the project |
-| `DESIGN.md` | Design agents | How the project should look and feel |
+- **TMDB** — 海报、简介、演员信息
+- **OMDb** — IMDb 评分
+- **豆瓣** — 中文评分与简介
 
-**This repo provides ready-to-use DESIGN.md files** extracted from real websites. 
+元数据获取状态实时展示，支持对单条或多条记录手动刷新。
 
-## Request a DESIGN.md
+### 🎬 在线播放
 
-You can [request a DESIGN.md](https://getdesign.md/request) for specific website, including private requests delivered exclusively to you.
+支持主流视频格式的浏览器端直接播放：
 
-## AI Design + Build Ecosystem Tools
+- MP4 / WebM / MOV / AVI 等格式 **浏览器原生支持**
+- 基于 **Range Request** 的分段流式播放，支持进度拖拽
+- 自定义播放器界面：播放/暂停、音量、全屏、进度条
 
-Tools, platforms, and services for designing and shipping web apps with AI.
+### 📺 连续剧管理
 
- - If you're building AI agents in TypeScript, VoltAgent gives you tool use, memory, and multi-agent coordination out of the box.
+支持多季多集的连续剧目录结构，智能识别季/集编号，提供分季浏览和一键播放。
 
-    <a href="https://github.com/VoltAgent/voltagent">
-    <img height="80" alt="voltagent-banner" src="https://github.com/user-attachments/assets/7196f50b-ca98-494c-8aa0-11e111c49f96" />
-    </a>
+### 🔍 搜索与筛选
 
- 
-<br/>
+- **分类筛选** — 按剧情、动作、科幻等分类浏览
+- **评分排序** — 按评分从高到低/从低到高排序
+- **中文拼音搜索** — 支持中文、英文及拼音首字母搜索（如搜索 `lrcq` 找到"利刃出鞘"）
 
-<div align="center">
+### 📊 观看历史
 
-<table>
-<tr>
-<td align="center" width="100%">
+自动记录观看进度，首页展示最近观看的影片，支持断点续播。
 
-<h4>👉 Feature your product alongside the developers, designers, and vibecoders shipping UI with AI coding agents and web builders.</h4>
+---
 
-<sub>Ranked #150 globally on GitHub. A community resource used by developers, designers, and vibecoders.</sub>
+## 快速开始
 
-<a href="https://sponsors.voltagent.dev/#awesome-design-md"><img src="https://img.shields.io/badge/📩_Become_a_Sponsor-Contact_Us-blue?style=for-the-badge&logoColor=white" alt="Become a Sponsor" /></a>
+### 前置条件
 
+- Node.js >= 18
+- npm >= 9
 
-</td>
-</tr>
-</table>
+### 安装与启动
 
-</div>
+```bash
+# 1. 克隆仓库
+git clone https://github.com/xujh1969/HomeVideoWeb.git
+cd HomeVideoWeb
 
-
-
-
-
-
-## Collection
-
-### AI & LLM Platforms
-
-- [**Claude**](https://getdesign.md/claude/design-md) - Anthropic's AI assistant. Warm terracotta accent, clean editorial layout
-- [**Cohere**](https://getdesign.md/cohere/design-md) - Enterprise AI platform. Vibrant gradients, data-rich dashboard aesthetic
-- [**ElevenLabs**](https://getdesign.md/elevenlabs/design-md) - AI voice platform. Dark cinematic UI, audio-waveform aesthetics
-- [**Minimax**](https://getdesign.md/minimax/design-md) - AI model provider. Bold dark interface with neon accents
-- [**Mistral AI**](https://getdesign.md/mistral.ai/design-md) - Open-weight LLM provider. French-engineered minimalism, purple-toned
-- [**Ollama**](https://getdesign.md/ollama/design-md) - Run LLMs locally. Terminal-first, monochrome simplicity
-- [**OpenCode AI**](https://getdesign.md/opencode.ai/design-md) - AI coding platform. Developer-centric dark theme
-- [**Replicate**](https://getdesign.md/replicate/design-md) - Run ML models via API. Clean white canvas, code-forward
-- [**Runway**](https://getdesign.md/runwayml/design-md) - AI creative-tools platform with an editorial film-festival aesthetic — cinematic dark heroes, paper-white reading bands, single proprietary sans, and pure black pill CTAs.
-- [**Together AI**](https://getdesign.md/together.ai/design-md) - Open-source AI infrastructure. Technical, blueprint-style design
-- [**VoltAgent**](https://getdesign.md/voltagent/design-md) - AI agent framework. Void-black canvas, emerald accent, terminal-native
-- [**xAI**](https://getdesign.md/x.ai/design-md) - Elon Musk's AI lab. Stark monochrome, futuristic minimalism
-
-### Developer Tools & IDEs
-
-- [**Cursor**](https://getdesign.md/cursor/design-md) - AI-first code editor. Sleek dark interface, gradient accents
-- [**Expo**](https://getdesign.md/expo/design-md) - React Native platform. Dark theme, tight letter-spacing, code-centric
-- [**Lovable**](https://getdesign.md/lovable/design-md) - AI full-stack builder. Playful gradients, friendly dev aesthetic
-- [**Raycast**](https://getdesign.md/raycast/design-md) - Productivity launcher. Sleek dark chrome, vibrant gradient accents
-- [**Superhuman**](https://getdesign.md/superhuman/design-md) - Fast email client. Premium dark UI, keyboard-first, purple glow
-- [**Vercel**](https://getdesign.md/vercel/design-md) - Frontend deployment platform. Black and white precision, Geist font
-- [**Warp**](https://getdesign.md/warp/design-md) - Modern terminal. Dark IDE-like interface, block-based command UI
-
-### Backend, Database & DevOps
-
-- [**ClickHouse**](https://getdesign.md/clickhouse/design-md) - Fast analytics database. Yellow-accented, technical documentation style
-- [**Composio**](https://getdesign.md/composio/design-md) - Tool integration platform. Modern dark with colorful integration icons
-- [**HashiCorp**](https://getdesign.md/hashicorp/design-md) - Infrastructure automation. Enterprise-clean, black and white
-- [**MongoDB**](https://getdesign.md/mongodb/design-md) - Document database. Green leaf branding, developer documentation focus
-- [**PostHog**](https://getdesign.md/posthog/design-md) - Product analytics. Playful hedgehog branding, developer-friendly dark UI
-- [**Sanity**](https://getdesign.md/sanity/design-md) - Headless content platform with a dark-first editorial marketing surface — 112px display type, IBM Plex Mono technical eyebrows, and a single coral-red accent reserved for the highest-priority CTA.
-- [**Sentry**](https://getdesign.md/sentry/design-md) - Error monitoring. Dark dashboard, data-dense, pink-purple accent
-- [**Supabase**](https://getdesign.md/supabase/design-md) - Open-source Firebase alternative. Dark emerald theme, code-first
-
-### Productivity & SaaS
-
-- [**Cal.com**](https://getdesign.md/cal/design-md) - Open-source scheduling. Clean neutral UI, developer-oriented simplicity
-- [**Intercom**](https://getdesign.md/intercom/design-md) - Customer messaging. Friendly blue palette, conversational UI patterns
-- [**Linear**](https://getdesign.md/linear.app/design-md) - Project management for engineers. Ultra-minimal, precise, purple accent
-- [**Mintlify**](https://getdesign.md/mintlify/design-md) - Documentation platform. Clean, green-accented, reading-optimized
-- [**Notion**](https://getdesign.md/notion/design-md) - All-in-one workspace. Warm minimalism, serif headings, soft surfaces
-- [**Resend**](https://getdesign.md/resend/design-md) - Email API for developers. Minimal dark theme, monospace accents
-- [**Zapier**](https://getdesign.md/zapier/design-md) - Automation platform. Warm orange, friendly illustration-driven
-
-### Design & Creative Tools
-
-- [**Airtable**](https://getdesign.md/airtable/design-md) - Spreadsheet-database hybrid. Colorful, friendly, structured data aesthetic
-- [**Clay**](https://getdesign.md/clay/design-md) - Creative agency. Organic shapes, soft gradients, art-directed layout
-- [**Figma**](https://getdesign.md/figma/design-md) - Collaborative design tool. Vibrant multi-color, playful yet professional
-- [**Framer**](https://getdesign.md/framer/design-md) - Website builder. Bold black and blue, motion-first, design-forward
-- [**Miro**](https://getdesign.md/miro/design-md) - Visual collaboration. Bright yellow accent, infinite canvas aesthetic
-- [**Webflow**](https://getdesign.md/webflow/design-md) - Visual web builder. Blue-accented, polished marketing site aesthetic
-
-### Fintech & Crypto
-
-- [**Binance**](https://getdesign.md/binance/design-md) - Crypto exchange. Bold Binance Yellow on monochrome, trading-floor urgency
-- [**Coinbase**](https://getdesign.md/coinbase/design-md) - Crypto exchange. Clean blue identity, trust-focused, institutional feel
-- [**Kraken**](https://getdesign.md/kraken/design-md) - Crypto trading platform. Purple-accented dark UI, data-dense dashboards
-- [**Mastercard**](https://getdesign.md/mastercard/design-md) - Global payments network. Warm cream canvas, orbital pill shapes, editorial warmth
-- [**Revolut**](https://getdesign.md/revolut/design-md) - Digital banking. Sleek dark interface, gradient cards, fintech precision
-- [**Stripe**](https://getdesign.md/stripe/design-md) - Payment infrastructure. Signature purple gradients, weight-300 elegance
-- [**Wise**](https://getdesign.md/wise/design-md) - International money transfer. Bright green accent, friendly and clear
-
-### E-commerce & Retail
-
-- [**Airbnb**](https://getdesign.md/airbnb/design-md) - Travel marketplace. Warm coral accent, photography-driven, rounded UI
-- [**Meta**](https://getdesign.md/meta/design-md) - Tech retail store. Photography-first, binary light/dark surfaces, Meta Blue CTAs
-- [**Nike**](https://getdesign.md/nike/design-md) - Athletic retail. Monochrome UI, massive uppercase Futura, full-bleed photography
-- [**Shopify**](https://getdesign.md/shopify/design-md) - E-commerce platform. Dark-first cinematic, neon green accent, ultra-light display type
-- [**Starbucks**](https://getdesign.md/starbucks/design-md) - Coffee retail flagship. Four-tier earth-green system, warm cream canvas, proprietary SoDoSans typography
-
-### Media & Consumer Tech
-
-- [**Apple**](https://getdesign.md/apple/design-md) - Consumer electronics. Premium white space, SF Pro, cinematic imagery
-- [**HP**](https://getdesign.md/hp/design-md) - PC and printer maker. Pure white canvas, HP Electric Blue signal CTA, geometric Forma DJR Micro, blue chevron decorations
-- [**IBM**](https://getdesign.md/ibm/design-md) - Enterprise technology. Carbon design system, structured blue palette
-- [**NVIDIA**](https://getdesign.md/nvidia/design-md) - GPU computing. Green-black energy, technical power aesthetic
-- [**Pinterest**](https://getdesign.md/pinterest/design-md) - Visual discovery platform. Red accent, masonry grid, image-first
-- [**PlayStation**](https://getdesign.md/playstation/design-md) - Gaming console retail. Three-surface channel layout, cyan hover-scale interaction
-- [**SpaceX**](https://getdesign.md/spacex/design-md) - Space technology. Stark black and white, full-bleed imagery, futuristic
-- [**Spotify**](https://getdesign.md/spotify/design-md) - Music streaming. Vibrant green on dark, bold type, album-art-driven
-- [**The Verge**](https://getdesign.md/theverge/design-md) - Tech editorial media. Acid-mint and ultraviolet accents, Manuka display type
-- [**Uber**](https://getdesign.md/uber/design-md) - Mobility platform. Bold black and white, tight type, urban energy
-- [**Vodafone**](https://getdesign.md/vodafone/design-md) - Global telecom brand. Monumental uppercase display, Vodafone Red chapter bands
-- [**WIRED**](https://getdesign.md/wired/design-md) - Tech magazine. Paper-white broadsheet density, custom serif, ink-blue links
-
-### Automotive
-
-- [**BMW**](https://getdesign.md/bmw/design-md) - Luxury automotive. Dark premium surfaces, precise German engineering aesthetic
-- [**BMW M**](https://getdesign.md/bmw-m/design-md) - Performance automotive. Motorsport-inspired contrast, M color accents, precision-driven layout
-- [**Bugatti**](https://getdesign.md/bugatti/design-md) - Luxury hypercar. Cinema-black canvas, monochrome austerity, monumental display type
-- [**Ferrari**](https://getdesign.md/ferrari/design-md) - Luxury automotive. Chiaroscuro black-white editorial, Ferrari Red with extreme sparseness
-- [**Lamborghini**](https://getdesign.md/lamborghini/design-md) - Luxury automotive. True black cathedral, gold accent, LamboType custom Neo-Grotesk
-- [**Renault**](https://getdesign.md/renault/design-md) - French automotive. Vivid aurora gradients, NouvelR proprietary typeface, zero-radius buttons
-- [**Tesla**](https://getdesign.md/tesla/design-md) - Electric vehicles. Radical subtraction, cinematic full-viewport photography, Universal Sans
-
-### Retro Web · DESIGN.md Nostalgia
-
-A Saturday series — DESIGN.md files extracted from the web of the 1990s. Drop one in and tell your AI agent to build a period-accurate vintage UI.
-
-- [**Dell (1996)**](https://getdesign.md/dell-1996/design-md) - Catalog-era enterprise web. Literal black page frame, flat color-block "ribbon cards", chunky Helvetica-Black titles over Times Roman body, and hand-cut GIF stickers (NEW! bursts, award seals, beveled product photos).
-- [**Nintendo.com (2001)**](https://getdesign.md/nintendo-2001/design-md) - Y2K "console chrome" web. Brushed-periwinkle beveled metal panels, a halftone-dotted carbon nav glowing amber, outlined Arial-Black box-art wordmarks over circuit-board hero fields, and a pixel Mario welcome bubble.
-
-
-## What's Inside Each DESIGN.md
-
-Every file follows the [Stitch DESIGN.md format](https://stitch.withgoogle.com/docs/design-md/specification/) with extended sections:
-
-| # | Section | What it captures |
-|---|---------|-----------------|
-| 1 | Visual Theme & Atmosphere | Mood, density, design philosophy |
-| 2 | Color Palette & Roles | Semantic name + hex + functional role |
-| 3 | Typography Rules | Font families, full hierarchy table |
-| 4 | Component Stylings | Buttons, cards, inputs, navigation with states |
-| 5 | Layout Principles | Spacing scale, grid, whitespace philosophy |
-| 6 | Depth & Elevation | Shadow system, surface hierarchy |
-| 7 | Do's and Don'ts | Design guardrails and anti-patterns |
-| 8 | Responsive Behavior | Breakpoints, touch targets, collapsing strategy |
-| 9 | Agent Prompt Guide | Quick color reference, ready-to-use prompts |
-
-Each site includes:
-
-| File | Purpose |
-|------|---------|
-| `DESIGN.md` | The design system (what agents read) |
-| `preview.html` | Visual catalog showing color swatches, type scale, buttons, cards |
-| `preview-dark.html` | Same catalog with dark surfaces |
-
-### How to Use
-
-
-1. Copy a site's `DESIGN.md` into your project root
-2. Tell your AI agent to use it.
-
-
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
-- **Improve existing files**: Fix wrong colors, missing tokens, weak descriptions
-- **Report issues**: Let us know if something looks off
-
-Before opening a PR, please [open an issue](https://github.com/VoltAgent/awesome-design-md/issues) first to discuss your idea and get feedback from maintainers.
-
-
-## License
-
-MIT License - see [LICENSE](LICENSE)
-
-This repository is a curated collection of design system documents extracted from public websites. All DESIGN.md files are provided "as is" without warranty. The extracted design tokens represent publicly visible CSS values. We do not claim ownership of any site's visual identity. These documents exist to help AI agents generate consistent UI.
+# 2. 安装依赖
+npm install
+cd client && npm install && cd ..
+
+# 3. 配置环境变量
+cp .env.sample .env
+# 编辑 .env 填入 API Key（至少填写一个元数据来源）
+
+# 4. 启动开发服务器（前后端同时启动）
+npm run dev
+```
+
+启动后：
+
+- **后端 API**: http://localhost:3000
+- **前端页面**: http://localhost:5173
+
+> Windows 用户可直接双击运行 `start.bat`，自动完成依赖安装并启动服务。
+
+### 首次使用
+
+1. 打开前端页面（默认 http://localhost:5173）
+2. 点击右上角 ⚙️ 进入**电影源管理**
+3. 添加你的影片目录（本地路径或 SMB/NFS 共享地址）
+4. 在设置页面点击**刷新媒体库**，等待扫描和元数据获取完成
+5. 回到首页即可浏览影片
+
+---
+
+## 环境配置
+
+参考 `.env.sample` 创建 `.env` 文件：
+
+```env
+# 服务端口
+PORT=3000
+
+# OMDb API Key（获取 IMDb 评分）
+OMDB_API_KEY=your_key_here
+
+# 豆瓣 API Key（获取中文元数据）
+DOUBAN_API_KEY=your_key_here
+
+# TMDB API Key（增强海报和元数据来源）
+TMDB_API_KEY=your_key_here
+
+# 数据库路径
+DB_PATH=./data/movies.db
+
+# 海报缓存目录
+POSTER_DIR=./data/images
+```
+
+> **至少需要配置一个元数据来源**，否则影片将只能显示文件名解析到的信息。
+
+---
+
+## 目录结构
+
+```
+home-video-web/
+├── client/                          # 前端 (React + Vite)
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── common/              # 公共组件
+│   │   │   │   ├── EmptyState.tsx
+│   │   │   │   ├── LoadingSpinner.tsx
+│   │   │   │   ├── Pagination.tsx
+│   │   │   │   └── RefreshProgressDialog.tsx
+│   │   │   ├── home/                # 首页组件
+│   │   │   │   ├── HeroBanner.tsx
+│   │   │   │   ├── LatestAdditions.tsx
+│   │   │   │   ├── RecentlyWatched.tsx
+│   │   │   │   └── VideoCarousel.tsx
+│   │   │   ├── layout/              # 布局组件
+│   │   │   │   ├── Header.tsx
+│   │   │   │   └── Sidebar.tsx
+│   │   │   ├── movie/               # 影片展示
+│   │   │   │   ├── MediaCard.tsx
+│   │   │   │   └── MediaGrid.tsx
+│   │   │   └── settings/
+│   │   │       └── SettingsDialog.tsx
+│   │   ├── pages/
+│   │   │   ├── HomePage.tsx         # 首页
+│   │   │   ├── MovieDetailPage.tsx  # 电影详情
+│   │   │   ├── SeriesDetailPage.tsx # 剧集详情
+│   │   │   └── PlayerPage.tsx       # 全屏播放器
+│   │   ├── utils/
+│   │   │   ├── api.ts              # API 请求封装
+│   │   │   └── pinyin.ts           # 拼音搜索工具
+│   │   ├── App.tsx                 # 根组件（路由）
+│   │   ├── main.tsx                # 入口文件
+│   │   └── index.css               # Tailwind 样式
+│   ├── vite.config.ts
+│   ├── tailwind.config.js
+│   └── package.json
+│
+├── server/                          # 后端 (Express + SQLite)
+│   ├── routes/
+│   │   ├── movies.ts               # 电影 API
+│   │   ├── series.ts               # 剧集 API
+│   │   ├── home.ts                 # 首页聚合 API
+│   │   ├── library.ts              # 媒体库刷新 API
+│   │   ├── sources.ts              # 电影源管理 API
+│   │   ├── stream.ts               # 视频流 API
+│   │   ├── posters.ts              # 海报服务 API
+│   │   └── genres.ts               # 分类 API
+│   ├── services/
+│   │   ├── fileScanner.ts          # 文件扫描引擎
+│   │   ├── filenameParser.ts       # 文件名解析器
+│   │   ├── metadataFetcher.ts      # 元数据获取协调
+│   │   ├── movieMetadataService.ts # 多源元数据聚合
+│   │   ├── tmdbService.ts          # TMDB API 封装
+│   │   ├── omdbService.ts          # OMDb API 封装
+│   │   ├── doubanService.ts        # 豆瓣 API 封装
+│   │   └── sourceManager.ts        # 电影源管理
+│   ├── db.ts                       # 数据库初始化与迁移
+│   ├── config.ts                   # 环境配置读取
+│   └── index.ts                    # 服务入口
+│
+├── shared/                          # 前后端共享代码
+│   ├── types.ts                    # TypeScript 类型定义
+│   ├── constants.ts                # 常量定义
+│   └── utils.ts                    # 工具函数
+│
+├── data/                            # 运行时数据
+│   ├── images/                     # 海报图片缓存
+│   └── movies.db                   # SQLite 数据库
+│
+├── .env.sample                     # 环境变量模板
+├── start.bat                       # Windows 一键启动脚本
+├── package.json                    # 后端依赖与脚本
+└── README.md
+```
+
+---
+
+## API 概览
+
+| 端点 | 方法 | 说明 |
+|------|------|------|
+| `/api/home` | GET | 首页数据（轮播、最近观看、最新添加） |
+| `/api/home/recently-watched` | GET | 最近观看记录 |
+| `/api/home/watch-history` | POST | 记录观看历史 |
+| `/api/movies` | GET | 电影列表（支持分页、分类、排序、搜索） |
+| `/api/movies/:id` | GET | 电影详情 |
+| `/api/movies/:id/fetch-metadata` | POST | 手动刷新单条元数据 |
+| `/api/series` | GET | 剧集列表 |
+| `/api/series/:id` | GET | 剧集详情（含分季分集） |
+| `/api/series/:id/fetch-metadata` | POST | 刷新剧集元数据 |
+| `/api/stream/movie/:id/direct` | GET | 电影视频流（支持 Range） |
+| `/api/stream/episode/:id/direct` | GET | 剧集视频流（支持 Range） |
+| `/api/sources` | GET | 电影源列表 |
+| `/api/sources` | POST | 添加电影源 |
+| `/api/sources/:id` | PUT | 更新电影源配置 |
+| `/api/sources/:id` | DELETE | 删除电影源 |
+| `/api/library/refresh` | POST | 触发全库刷新扫描 |
+| `/api/library/refresh/status` | GET | 刷新进度查询 |
+| `/api/library/posters/download` | POST | 批量下载缺失海报 |
+| `/api/genres` | GET | 获取所有分类 |
+| `/api/posters/:filename` | GET | 获取海报图片 |
+
+---
+
+## 文件名规范
+
+### 电影文件
+
+推荐命名格式，以便自动提取评分、分类和标题：
+
+```
+【评分】【分类】中文名.英文名.年份.其他信息.扩展名
+```
+
+示例：
+
+```
+【9.3】【剧情】肖申克的救赎.The Shawshank Redemption.1994.1080p.mp4
+【8.5】【动作】利刃出鞘.Knives Out.2019.mp4
+【7.8】【科幻】月球.Moon.2009.BluRay.mkv
+```
+
+- `【评分】` — 用于排序和评分徽章显示
+- `【分类】` — 用于左侧分类筛选
+- 中英文标题 — 用于元数据刮削的搜索关键词
+
+### 连续剧目录
+
+```
+连续剧名称【评分】【分类】/
+├── Season 1/
+│   ├── S01E01.mp4
+│   ├── S01E02 集标题.mp4
+│   └── ...
+├── Season 2/
+│   ├── S02E01.mp4
+│   └── ...
+└── ...
+```
+
+支持的集数命名格式：
+
+- `S01E01.mp4` / `S01E01 标题.mp4`
+- `1-01.mp4`（备用格式）
+
+---
+
+## 媒体源配置
+
+支持三种类型的媒体源：
+
+| 类型 | 说明 | 地址示例 |
+|------|------|----------|
+| `local` | 本地磁盘路径 | `D:\Movies` |
+| `smb` | SMB/CIFS 网络共享 | `\\192.168.1.100\video` |
+| `nfs` | NFS 网络共享 | `/mnt/nas/video` |
+
+每个源支持配置：
+
+- **扫描间隔** — 自动重新扫描的时间间隔（秒）
+- **启用/禁用** — 临时关闭某个源而不删除配置
+- **连接测试** — 验证源是否可达
+
+---
+
+## 构建部署
+
+```bash
+# 构建前端 + 后端
+npm run build
+
+# 启动生产服务（前端由 Express 静态文件托管）
+npm start
+```
+
+生产部署后，访问 `http://your-server:3000` 即可使用完整功能。
+
+---
+
+## 技术栈
+
+### 前端
+
+| 技术 | 用途 |
+|------|------|
+| [React 18](https://react.dev/) | UI 框架 |
+| [TypeScript](https://www.typescriptlang.org/) | 类型安全 |
+| [Vite](https://vitejs.dev/) | 构建工具 |
+| [Tailwind CSS 3](https://tailwindcss.com/) | 样式框架 |
+| [React Router v6](https://reactrouter.com/) | 路由 |
+| [lucide-react](https://lucide.dev/) | 图标库 |
+| [pinyin](https://github.com/hotoo/pinyin) | 中文拼音搜索 |
+| [axios](https://axios-http.com/) | HTTP 客户端 |
+
+### 后端
+
+| 技术 | 用途 |
+|------|------|
+| [Express](https://expressjs.com/) | Web 框架 |
+| [TypeScript](https://www.typescriptlang.org/) | 类型安全 |
+| [better-sqlite3](https://github.com/WiseLibs/better-sqlite3) | SQLite 数据库驱动 |
+| [axios](https://axios-http.com/) | HTTP 客户端（元数据请求） |
+| [fs-extra](https://github.com/jprichardson/node-fs-extra) | 文件系统扩展 |
+| [nodemon](https://nodemon.io/) | 开发热重载 |
+
+### 元数据来源
+
+- [TMDB](https://www.themoviedb.org/) — 国际电影数据库（海报、简介、演员）
+- [OMDb API](http://www.omdbapi.com/) — IMDb 评分
+- [豆瓣](https://movie.douban.com/) — 中文评分与简介
+
+---
+
+## 许可证
+
+本项目仅供个人学习和非商业用途。
