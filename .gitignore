@@ -1,0 +1,35 @@
+# 环境变量（含 API Key）
+.env
+
+# 依赖
+node_modules/
+client/node_modules/
+
+# 设计参考（不涉及源代码）
+design-md/
+
+# 构建输出
+dist/
+client/dist/
+
+# 测试脚本
+demo/
+test-*.ts
+test-*.mjs
+restore-*.ts
+
+# 系统文件
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# IDE
+.idea/
+.vscode/
+*.sublime-*
+
+# Claude
+.claude/settings.local.json
+
+node_modules
