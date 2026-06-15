@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { Play, Clock, Calendar, ArrowLeft, RefreshCw, Maximize } from 'lucide-react'
+import { Play, Clock, Calendar, ArrowLeft, RefreshCw } from 'lucide-react'
 import { getMovieById, fetchMovieMetadata, addWatchHistory } from '@/utils/api'
 import type { Movie } from '@shared/types'
-import { formatDate, formatRuntime, formatFileSize } from '@shared/utils'
+import { formatDate, formatRuntime, formatFileSize } from '@/utils/formatters'
 import { LoadingSpinner } from '@/components/common/LoadingSpinner'
 
 function getRatingColor(rating: number | undefined): string {
@@ -20,7 +20,7 @@ export default function MovieDetailPage() {
   const [movie, setMovie] = useState<Movie | null>(null)
   const [loading, setLoading] = useState(true)
   const [fetchingMetadata, setFetchingMetadata] = useState(false)
-  const [isFullscreen, setIsFullscreen] = useState(false)
+  const [videoError, setVideoError] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchMovie = async () => {
@@ -43,20 +43,44 @@ export default function MovieDetailPage() {
     }
   }, [movie])
 
-  // 全屏状态监听
+  // 监听视频的全屏请求和错误
   useEffect(() => {
-    const handleFullscreenChange = () => {
-      setIsFullscreen(!!document.fullscreenElement)
+    const video = videoRef.current
+    if (!video) return
+
+    // 监听视频的全屏按钮点击
+    video.addEventListener('webkitfullscreenchange', handleFullscreen)
+    video.addEventListener('mozfullscreenchange', handleFullscreen)
+    video.addEventListener('fullscreenchange', handleFullscreen)
+    video.addEventListener('error', handleVideoError)
+
+    return () => {
+      video.removeEventListener('webkitfullscreenchange', handleFullscreen)
+      video.removeEventListener('mozfullscreenchange', handleFullscreen)
+      video.removeEventListener('fullscreenchange', handleFullscreen)
+      video.removeEventListener('error', handleVideoError)
     }
-    document.addEventListener('fullscreenchange', handleFullscreenChange)
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange)
   }, [])
+
+  const handleVideoError = (e: Event) => {
+    const video = e.target as HTMLVideoElement
+    console.error('Video error:', video.error)
+    if (video.error?.code === 4 || video.error?.code === 3) {
+      setVideoError('视频文件不存在或无法播放')
+    } else {
+      setVideoError('视频加载失败，请稍后重试')
+    }
+  }
 
   const handleFullscreen = async () => {
     const container = document.getElementById('player-container')
-    if (!container) return
+    const video = videoRef.current
+    if (!container || !video) return
 
-    if (!document.fullscreenElement) {
+    if (document.fullscreenElement === video) {
+      await document.exitFullscreen()
+      await container.requestFullscreen()
+    } else if (!document.fullscreenElement) {
       await container.requestFullscreen()
     } else {
       await document.exitFullscreen()
@@ -110,28 +134,36 @@ export default function MovieDetailPage() {
         onDoubleClick={handleDoubleClick}
       >
         <div className="w-full h-full flex items-center justify-center p-4">
-          <div className="bg-black rounded-lg overflow-hidden shadow-lg max-w-full max-h-full">
-            <video
-              ref={videoRef}
-              src={`/api/stream/movie/${movie.id}/direct`}
-              className="w-auto h-auto max-w-full max-h-full object-contain"
-              controls={isFullscreen}
-              autoPlay
-              playsInline
-              poster={movie.local_poster || movie.poster_path}
-            />
-          </div>
+          {videoError ? (
+            <div className="flex flex-col items-center justify-center bg-black rounded-lg p-8">
+              <p className="text-body text-ink-dim mb-4">{videoError}</p>
+              <button
+                onClick={() => {
+                  setVideoError(null)
+                  videoRef.current?.load()
+                }}
+                className="px-4 py-2 bg-primary hover:bg-primary-hover text-ink font-medium rounded-lg transition-colors"
+              >
+                重试播放
+              </button>
+            </div>
+          ) : (
+            <div className="bg-black rounded-lg overflow-hidden shadow-lg max-w-full max-h-full">
+              <video
+                ref={videoRef}
+                src={`/api/stream/movie/${movie.id}/direct`}
+                className="w-auto h-auto max-w-full max-h-full object-contain"
+                controls
+                autoPlay
+                playsInline
+                poster={movie.local_poster || movie.poster_path || undefined}
+              />
+            </div>
+          )}
         </div>
 
         {/* 非全屏时的全屏按钮 */}
-        {!isFullscreen && (
-          <button
-            onClick={handleFullscreen}
-            className="absolute bottom-4 right-4 p-2 bg-black/50 hover:bg-black/70 rounded-lg transition-colors z-50"
-          >
-            <Maximize className="w-5 h-5 text-white" />
-          </button>
-        )}
+        
       </div>
 
       {/* 右侧：简介区 */}

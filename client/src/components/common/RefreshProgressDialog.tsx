@@ -176,7 +176,7 @@ export function RefreshProgressDialog({ onClose }: RefreshProgressDialogProps) {
           </div>
 
           {/* Metadata Stats */}
-          {currentStatus === 'metadata' && progress?.progress?.metadata_total > 0 && (
+          {currentStatus === 'metadata' && progress?.progress && progress.progress.metadata_total && progress.progress.metadata_total > 0 && (
             <div className="flex items-center gap-4 text-caption">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-success-text" />
@@ -294,8 +294,8 @@ function getStepStatus(currentStatus: string, step: string): StepStatus {
 function getProgressPercent(status: string, progress: ProgressData | null): string {
   let percent: number
   
-  if (status === 'metadata' && progress?.progress?.metadata_total > 0) {
-    const metadataPercent = (progress.progress.metadata_completed / progress.progress.metadata_total) * 95
+  if (status === 'metadata' && progress && progress.progress && progress.progress.metadata_total && progress.progress.metadata_total > 0) {
+    const metadataPercent = ((progress.progress.metadata_completed || 0) / progress.progress.metadata_total) * 95
     percent = 5 + metadataPercent
   } else {
     const map: Record<string, number> = {

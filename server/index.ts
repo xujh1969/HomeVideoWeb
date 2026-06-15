@@ -14,6 +14,22 @@ import genresRouter from './routes/genres'
 
 const app = express()
 
+function getLocalIPs(): string[] {
+  const os = require('os')
+  const interfaces = os.networkInterfaces()
+  const ips: string[] = []
+  
+  Object.keys(interfaces).forEach((iface) => {
+    interfaces[iface]?.forEach((details) => {
+      if (details.family === 'IPv4' && !details.internal) {
+        ips.push(details.address)
+      }
+    })
+  })
+  
+  return ips
+}
+
 function startServer() {
   initDatabase()
   
@@ -29,14 +45,37 @@ function startServer() {
   app.use('/api/posters', postersRouter)
   app.use('/api/genres', genresRouter)
 
-  app.use(express.static(path.join(__dirname, '../client/dist')))
+  app.use(express.static(path.join(__dirname, '../../client/dist')))
 
   app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/dist', 'index.html'))
+    res.sendFile(path.join(__dirname, '../../client/dist', 'index.html'))
   })
 
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server running on http://localhost:${PORT}`)
+    const localIPs = getLocalIPs()
+    
+    console.log('')
+    console.log('============================================')
+    console.log('    Home Video Platform - Production Mode')
+    console.log('============================================')
+    console.log('')
+    console.log('Server started successfully!')
+    console.log('')
+    console.log('Access URLs:')
+    console.log(`  Local:    http://localhost:${PORT}`)
+    console.log(`  Network:  http://127.0.0.1:${PORT}`)
+    
+    if (localIPs.length > 0) {
+      localIPs.forEach((ip) => {
+        console.log(`  LAN:      http://${ip}:${PORT}`)
+      })
+    }
+    
+    console.log('')
+    console.log('============================================')
+    console.log('Press Ctrl+C to stop the server')
+    console.log('============================================')
+    console.log('')
   })
 }
 

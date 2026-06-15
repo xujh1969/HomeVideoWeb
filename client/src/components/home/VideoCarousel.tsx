@@ -10,13 +10,22 @@ interface VideoCarouselProps {
 const CLIP_DURATION = 10 // 每个片段播放10秒
 const TRANSITION_DURATION = 500 // 切换动画时长
 
+// 浏览器原生支持的视频格式
+// 浏览器原生支持的视频格式（带type属性）
+const BROWSER_SUPPORTED_EXTS = ['.mp4', '.webm', '.ogg']
+
+// 可以尝试播放的视频格式（不带type属性，让浏览器自动识别）
+const BROWSER_ATTEMPT_EXTS = ['.mkv', '.avi', '.mov', '.flv']
+
 export function VideoCarousel({ movies }: VideoCarouselProps) {
   const navigate = useNavigate()
   const videoRef = useRef<HTMLVideoElement>(null)
+  const preloadVideoRef = useRef<HTMLVideoElement>(null)
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isTransitioning, setIsTransitioning] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [hasError, setHasError] = useState(false)
+  const [preloadedIndex, setPreloadedIndex] = useState(-1)
 
   // 没有影片时显示欢迎信息
   if (movies.length === 0) {
@@ -38,6 +47,9 @@ export function VideoCarousel({ movies }: VideoCarouselProps) {
 
   const currentMovie = movies[currentIndex]
 
+  // 检查视频格式是否可以尝试播放（不带type属性，让浏览器自动识别）
+  const canAttemptPlay = currentMovie.ext && (BROWSER_SUPPORTED_EXTS.includes(currentMovie.ext) || BROWSER_ATTEMPT_EXTS.includes(currentMovie.ext))
+
   // 随机生成开始时间（在电影开始15分钟后，结束15分钟前）
   const generateRandomStartTime = (duration: number) => {
     const minTime = 15 * 60 // 15分钟 = 900秒
@@ -45,18 +57,52 @@ export function VideoCarousel({ movies }: VideoCarouselProps) {
     return Math.floor(Math.random() * (maxTime - minTime)) + minTime
   }
 
-  // 初始化当前视频
+  // 预加载下一个视频
   useEffect(() => {
-    if (currentMovie) {
-      setIsLoading(true)
-      setHasError(false)
+    const nextIndex = (currentIndex + 1) % movies.length
+    const nextMovie = movies[nextIndex]
+    
+    // 如果已经预加载过或者不支持播放，跳过
+    if (preloadedIndex === nextIndex || !nextMovie.ext) {
+      return
     }
-  }, [currentIndex])
+    
+    const canPreload = BROWSER_SUPPORTED_EXTS.includes(nextMovie.ext) || BROWSER_ATTEMPT_EXTS.includes(nextMovie.ext)
+    if (!canPreload) {
+      return
+    }
+    
+    const preloadVideo = preloadVideoRef.current
+    if (!preloadVideo) return
+    
+    // 设置预加载视频源
+    preloadVideo.src = `/api/stream/movie/${nextMovie.id}/direct`
+    preloadVideo.load()
+    preloadVideo.preload = 'auto'
+    
+    const handleLoadedMetadata = () => {
+      // 预加载完成，记录索引
+      setPreloadedIndex(nextIndex)
+    }
+    
+    preloadVideo.addEventListener('loadedmetadata', handleLoadedMetadata)
+    
+    return () => {
+      preloadVideo.removeEventListener('loadedmetadata', handleLoadedMetadata)
+    }
+  }, [currentIndex, movies, preloadedIndex])
 
   // 视频加载后设置开始时间
   useEffect(() => {
     const video = videoRef.current
-    if (!video || !currentMovie) return
+    if (!video || !currentMovie || !canAttemptPlay) {
+      // 如果不支持浏览器直接播放，直接显示海报
+      if (!canAttemptPlay) {
+        setHasError(true)
+        setIsLoading(false)
+      }
+      return
+    }
 
     const handleLoadedMetadata = () => {
       const randomStart = generateRandomStartTime(video.duration)
@@ -79,7 +125,7 @@ export function VideoCarousel({ movies }: VideoCarouselProps) {
       video.removeEventListener('loadedmetadata', handleLoadedMetadata)
       video.removeEventListener('error', handleError)
     }
-  }, [currentMovie])
+  }, [currentMovie, canAttemptPlay])
 
   // 定时切换到下一个视频
   useEffect(() => {
@@ -94,7 +140,12 @@ export function VideoCarousel({ movies }: VideoCarouselProps) {
     if (isTransitioning) return
     setIsTransitioning(true)
     setTimeout(() => {
-      setCurrentIndex((prev) => (prev + 1) % movies.length)
+      const nextIndex = (currentIndex + 1) % movies.length
+      setCurrentIndex(nextIndex)
+      // 如果预加载的是下一个，切换时重置预加载索引
+      if (preloadedIndex === nextIndex) {
+        setPreloadedIndex(-1)
+      }
       setIsTransitioning(false)
     }, TRANSITION_DURATION)
   }
@@ -116,12 +167,21 @@ export function VideoCarousel({ movies }: VideoCarouselProps) {
 
   return (
     <div className="relative h-[400px] rounded-2xl overflow-hidden mb-8 group">
+      {/* 隐藏的预加载视频 */}
+      <video
+        ref={preloadVideoRef}
+        className="hidden"
+        muted
+        playsInline
+        preload="auto"
+      />
+      
       {/* 视频背景 */}
       <div 
         className={`absolute inset-0 transition-opacity duration-500 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}
       >
-        {hasError ? (
-          // 视频加载失败时显示海报
+        {hasError || !canAttemptPlay ? (
+          // 视频加载失败或不支持时显示海报
           currentMovie.local_poster || currentMovie.poster_path ? (
             <img
               src={currentMovie.local_poster || currentMovie.poster_path || undefined}
@@ -150,8 +210,8 @@ export function VideoCarousel({ movies }: VideoCarouselProps) {
       />
 
       {/* 加载指示器 */}
-      {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-canvas-deep/50">
+      {isLoading && canAttemptPlay && (
+        <div className="absolute inset-0 flex items-center justify-center bg-canvas-deep/50 z-5">
           <div className="w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-spin" />
         </div>
       )}

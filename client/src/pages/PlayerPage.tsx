@@ -15,6 +15,7 @@ export default function PlayerPage() {
   const [series, setSeries] = useState<Series | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [videoError, setVideoError] = useState<string | null>(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [isMuted, setIsMuted] = useState(false)
   const [isFullscreen, setIsFullscreen] = useState(false)
@@ -73,14 +74,26 @@ export default function PlayerPage() {
     video.addEventListener('loadedmetadata', handleLoadedMetadata)
     video.addEventListener('play', handlePlay)
     video.addEventListener('pause', handlePause)
+    video.addEventListener('error', handleVideoError)
 
     return () => {
       video.removeEventListener('timeupdate', handleTimeUpdate)
       video.removeEventListener('loadedmetadata', handleLoadedMetadata)
       video.removeEventListener('play', handlePlay)
       video.removeEventListener('pause', handlePause)
+      video.removeEventListener('error', handleVideoError)
     }
   }, [])
+
+  const handleVideoError = (e: Event) => {
+    const video = e.target as HTMLVideoElement
+    console.error('Video error:', video.error)
+    if (video.error?.code === 4 || video.error?.code === 3) {
+      setVideoError('视频文件不存在或无法播放')
+    } else {
+      setVideoError('视频加载失败，请稍后重试')
+    }
+  }
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -188,15 +201,29 @@ export default function PlayerPage() {
         <div className="w-24" />
       </div>
 
-      <div id="player-container" className="h-[calc(100vh-80px)]">
-        <video
-          ref={videoRef}
-          className="w-full h-full object-contain"
-          controls
-          autoPlay
-          playsInline
-          poster={type === 'movie' ? (media as Movie).local_poster || (media as Movie).poster_path : series?.local_poster || series?.poster_path}
-        >
+      <div id="player-container" className="h-[calc(100vh-80px)] relative">
+        {videoError ? (
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-canvas-deep">
+            <p className="text-body text-ink-dim mb-4">{videoError}</p>
+            <button
+              onClick={() => {
+                setVideoError(null)
+                videoRef.current?.load()
+              }}
+              className="px-4 py-2 bg-primary hover:bg-primary-hover text-ink font-medium rounded-lg transition-colors"
+            >
+              重试播放
+            </button>
+          </div>
+        ) : (
+          <video
+            ref={videoRef}
+            className="w-full h-full object-contain"
+            controls
+            autoPlay
+            playsInline
+            poster={(type === 'movie' ? (media as Movie).local_poster || (media as Movie).poster_path : series?.local_poster || series?.poster_path) || undefined}
+          >
           {/* MP4/WebM/OGG 浏览器原生支持 */}
           {['.mp4', '.webm', '.ogg'].includes((media as any).ext) && (
             <source
@@ -210,6 +237,7 @@ export default function PlayerPage() {
           />
           您的浏览器不支持视频播放
         </video>
+        )}
 
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-canvas-deep/90 via-canvas-deep/50 to-transparent p-6">
           <div

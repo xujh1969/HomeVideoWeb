@@ -31,7 +31,7 @@ export function HeroBanner({ featuredMovie }: HeroBannerProps) {
       {featuredMovie.local_poster ? (
         <img
           src={featuredMovie.local_poster}
-          alt={featuredMovie.title_cn || featuredMovie.title_en}
+          alt={featuredMovie.title_cn || featuredMovie.title_en || undefined}
           className="w-full h-full object-cover"
         />
       ) : (

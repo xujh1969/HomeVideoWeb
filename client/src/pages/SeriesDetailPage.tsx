@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { Play, Clock, Calendar, Film, ArrowLeft } from 'lucide-react'
 import { getSeriesById, addWatchHistory } from '@/utils/api'
 import type { Series, Episode } from '@shared/types'
-import { formatDate, formatFileSize, getRatingClass, getRatingColor } from '@shared/utils'
+import { formatDate, formatFileSize, getRatingClass, getRatingColor } from '@/utils/formatters'
 import { LoadingSpinner } from '@/components/common/LoadingSpinner'
 
 export default function SeriesDetailPage() {
@@ -62,7 +62,7 @@ export default function SeriesDetailPage() {
             {series.local_poster ? (
               <img
                 src={series.local_poster}
-                alt={series.title_cn}
+                alt={series.title_cn || undefined}
                 className="w-full h-full object-cover"
               />
             ) : (

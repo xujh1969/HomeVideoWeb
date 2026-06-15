@@ -6,8 +6,22 @@ cd /d "%~dp0"
 chcp 65001 >nul
 
 echo ============================================
-echo    Home Video Platform - Starting...
+echo    Home Video Platform - Production Mode
 echo ============================================
+echo.
+
+:: Check and kill process using port 3000
+echo [Check] Checking if port 3000 is in use...
+for /f "tokens=5" %%a in ('netstat -ano ^| findstr :3000 ^| findstr LISTENING') do (
+    echo [Port] Port 3000 is occupied by PID %%a, terminating...
+    taskkill /F /PID %%a >nul 2>&1
+    if errorlevel 1 (
+        echo [Warning] Failed to terminate PID %%a, but will try to start anyway...
+    ) else (
+        echo [Port] Successfully terminated PID %%a
+    )
+    timeout /t 2 /nobreak >nul
+)
 echo.
 
 :: Check dependencies
@@ -33,18 +47,38 @@ if not exist "client\node_modules" (
     cd ..
 )
 
-echo [Start] Launching backend and frontend services...
+:: Build for production
+echo [Build] Building backend...
+call npm run build:server
+if errorlevel 1 (
+    echo [Error] Backend build failed!
+    pause
+    exit /b 1
+)
+
+echo [Build] Building frontend...
+call npm run build:client
+if errorlevel 1 (
+    echo [Error] Frontend build failed!
+    pause
+    exit /b 1
+)
+
 echo.
 echo ============================================
-echo   Backend  > http://localhost:3000
-echo   Frontend > http://localhost:5173
-echo.
-echo   Press Ctrl+C to stop all services
+echo   Build completed successfully!
 echo ============================================
 echo.
 
-:: Use concurrently to run both services in one window with labeled output
-call npx concurrently --names "BACKEND,FRONTEND" --prefix-colors "blue,green" "npx nodemon --watch server --ext ts --exec ts-node server/index.ts" "cd client && npx vite --host"
+echo [Start] Launching production server...
+echo.
+echo ============================================
+echo   Waiting for server to start...
+echo ============================================
+echo.
+
+:: Start production server
+call npm start
 
 echo.
 echo Services stopped.

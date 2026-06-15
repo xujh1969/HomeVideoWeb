@@ -39,7 +39,7 @@ export function RecentlyWatched({ items }: RecentlyWatchedProps) {
               {item.local_poster ? (
                 <img
                   src={item.local_poster}
-                  alt={item.title_cn || item.title_en}
+                  alt={item.title_cn || item.title_en || undefined}
                   className="w-full h-full object-cover"
                 />
               ) : (

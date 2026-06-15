@@ -1,13 +1,12 @@
 import { useState, useEffect, useMemo } from 'react'
-import { getHomeData, getMovies, getSeries } from '@/utils/api'
-import type { HomePageData, MediaCardData, Movie, Series } from '@shared/types'
+import { getHomeData, getMovies, getSeries, getRecentlyWatched } from '@/utils/api'
+import type { HomePageData, MediaCardData, Movie, Series, WatchHistoryItem } from '@shared/types'
 import { VideoCarousel } from '@/components/home/VideoCarousel'
 import { RecentlyWatched } from '@/components/home/RecentlyWatched'
 import { MediaGrid } from '@/components/movie/MediaGrid'
 import { LoadingSpinner } from '@/components/common/LoadingSpinner'
 import { EmptyState } from '@/components/common/EmptyState'
 import { Pagination } from '@/components/common/Pagination'
-import { matchSearch } from '@/utils/pinyin'
 
 interface HomePageProps {
   selectedGenre?: string
@@ -19,25 +18,22 @@ const PAGE_SIZE = 24
 
 export default function HomePage({ selectedGenre = '全部', selectedSection = 'home', searchQuery = '' }: HomePageProps) {
   const [data, setData] = useState<HomePageData | null>(null)
+  const [recentlyWatched, setRecentlyWatched] = useState<WatchHistoryItem[]>([])
   const [allMovies, setAllMovies] = useState<Movie[]>([])
   const [allSeries, setAllSeries] = useState<Series[]>([])
-  const [latestMovies, setLatestMovies] = useState<Movie[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [sortDesc, setSortDesc] = useState(true)
 
-  // 当 section 变化时，重置页码并重新获取数据
   useEffect(() => {
     setCurrentPage(1)
   }, [selectedSection])
 
-  // 当分类变化时，重置页码
   useEffect(() => {
     setCurrentPage(1)
   }, [selectedGenre])
 
-  // 当搜索词变化时，重置页码
   useEffect(() => {
     setCurrentPage(1)
   }, [searchQuery])
@@ -48,11 +44,12 @@ export default function HomePage({ selectedGenre = '全部', selectedSection = '
       setError(null)
       try {
         if (selectedSection === 'home') {
-          const result = await getHomeData(1, 1000)
-          setData(result)
-          // 获取最近添加的5部电影用于轮播
-          const moviesResult = await getMovies({ limit: 5, sort: 'date_desc' })
-          setLatestMovies(moviesResult.movies)
+          const [homeResult, watchedResult] = await Promise.all([
+            getHomeData(1, 1000),
+            getRecentlyWatched()
+          ])
+          setData(homeResult)
+          setRecentlyWatched(watchedResult)
         } else if (selectedSection === 'movies') {
           const result = await getMovies({ limit: 1000 })
           setAllMovies(result.movies)
@@ -70,7 +67,6 @@ export default function HomePage({ selectedGenre = '全部', selectedSection = '
     fetchData()
   }, [selectedSection])
 
-  // 获取当前 section 的所有数据
   const allItems = useMemo(() => {
     if (selectedSection === 'home' && data) {
       return data.library.items
@@ -84,30 +80,25 @@ export default function HomePage({ selectedGenre = '全部', selectedSection = '
     return []
   }, [data, allMovies, allSeries, selectedSection])
 
-  // 根据分类筛选数据
   const filteredItems = useMemo(() => {
     let items = allItems
 
-    // 分类筛选
     if (selectedGenre !== '全部') {
       items = items.filter((item: MediaCardData) => item.filename_genre === selectedGenre)
     }
 
-    // 搜索筛选
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase().trim()
       items = items.filter((item: MediaCardData) => {
-        const titleCn = item.title_cn || ''
+        const titleCn = (item.title_cn || '').toLowerCase()
         const titleEn = (item.title_en || '').toLowerCase()
-        // 使用 matchSearch 支持中文、英文、拼音首字母搜索
-        return matchSearch(titleCn, query) || titleEn.includes(query)
+        return titleCn.includes(query) || titleEn.includes(query)
       })
     }
 
     return items
   }, [allItems, selectedGenre, searchQuery])
 
-  // 按评分排序
   const sortedItems = useMemo(() => {
     const bestRating = (item: MediaCardData) => item.imdb_rating || item.douban_rating || item.filename_rating
     return [...filteredItems].sort((a, b) => {
@@ -117,7 +108,6 @@ export default function HomePage({ selectedGenre = '全部', selectedSection = '
     })
   }, [filteredItems, sortDesc])
 
-  // 分页显示
   const displayItems = useMemo(() => {
     const start = (currentPage - 1) * PAGE_SIZE
     return sortedItems.slice(start, start + PAGE_SIZE)
@@ -127,56 +117,68 @@ export default function HomePage({ selectedGenre = '全部', selectedSection = '
     return Math.ceil(sortedItems.length / PAGE_SIZE)
   }, [sortedItems.length])
 
-  // 获取页面标题
   const pageTitle = useMemo(() => {
-    // 有分类筛选时显示分类名
     if (selectedGenre !== '全部') {
       return selectedGenre
     }
-    // 根据 section 显示
     if (selectedSection === 'movies') return '电影库'
     if (selectedSection === 'series') return '连续剧'
     return '影片库'
   }, [selectedSection, selectedGenre])
 
-  // 是否显示轮播区和最近播放（首页模式 + 全部分类 + 无搜索）
   const showHero = selectedSection === 'home' && selectedGenre === '全部' && !searchQuery
+  
+  // 从电影库中随机选择5部用于轮播
+  const carouselMovies = useMemo(() => {
+    if (!data || !data.library.items || data.library.items.length === 0) return []
+    // 获取所有有完整信息的电影
+    const allItems = [...data.library.items]
+    // 随机打乱并取前5部
+    const shuffled = allItems.sort(() => Math.random() - 0.5)
+    return shuffled.slice(0, 5) as unknown as Movie[]
+  }, [data])
 
   if (loading) {
-    return <LoadingSpinner />
+    return (
+      <div className="p-6">
+        <LoadingSpinner />
+      </div>
+    )
   }
 
   if (error) {
-    return <EmptyState title="加载失败" description={error} />
+    return (
+      <div className="p-6">
+        <EmptyState title="加载失败" description={error} />
+      </div>
+    )
   }
 
   if (selectedSection === 'home' && !data) {
-    return <EmptyState title="暂无数据" description="请先添加电影源" />
+    return (
+      <div className="p-6">
+        <EmptyState title="暂无数据" description="请先添加电影源" />
+      </div>
+    )
   }
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
-      {/* 轮播区和最近播放（仅首页+全部分类+无搜索时显示） */}
       {showHero && (
-        <>
-          {/* 视频轮播区 */}
-          <VideoCarousel movies={latestMovies} />
-
-          {/* 最近播放 */}
-          {data && (
-            <RecentlyWatched items={data.recentlyWatched} />
-          )}
-        </>
+        <VideoCarousel movies={carouselMovies} />
       )}
 
-      {/* 影片网格 */}
+      {showHero && (
+        <RecentlyWatched items={recentlyWatched} />
+      )}
+
       {displayItems.length > 0 && (
         <>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-display-sm text-ink font-medium">{pageTitle}</h2>
             <button
               onClick={() => setSortDesc(!sortDesc)}
-              className="flex flex-col items-center px-2.5 py-1.5 rounded-lg hover:bg-surface-elevated transition-colors group"
+              className="flex flex-col items-center px-2.5 py-1.5 rounded-lg hover:bg-surface-elevated transition-colors"
               title={sortDesc ? '切换为升序' : '切换为降序'}
             >
               <svg width="14" height="9" viewBox="0 0 14 9" className={`${sortDesc ? 'text-ink-dim' : 'text-primary'} transition-colors`}>
@@ -200,7 +202,6 @@ export default function HomePage({ selectedGenre = '全部', selectedSection = '
         </>
       )}
 
-      {/* 无数据提示 */}
       {displayItems.length === 0 && (
         <EmptyState
           title={searchQuery ? '未找到匹配影片' : '暂无数据'}

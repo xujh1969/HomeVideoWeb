@@ -133,3 +133,13 @@ export async function getGenres(): Promise<{ genres: string[] }> {
   const response = await api.get('/genres')
   return response.data
 }
+
+export async function getGenreStats(): Promise<{ 
+  movieTotal: number; 
+  seriesTotal: number; 
+  movieGenres: { [key: string]: number }; 
+  seriesGenres: { [key: string]: number } 
+}> {
+  const response = await api.get('/genres/stats')
+  return response.data
+}

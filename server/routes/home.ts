@@ -81,6 +81,8 @@ router.get('/', (req, res) => {
       imdb_rating,
       douban_rating,
       local_poster,
+      overview,
+      ext,
       release_date,
       runtime
     FROM movies

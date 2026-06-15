@@ -34,7 +34,7 @@ export function MediaCard({ media }: MediaCardProps) {
         {media.local_poster ? (
           <img
             src={media.local_poster}
-            alt={media.title_cn || media.title_en}
+            alt={media.title_cn || media.title_en || undefined}
             className="w-full h-full object-cover"
             loading="lazy"
           />

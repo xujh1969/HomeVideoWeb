@@ -11,7 +11,7 @@ export function SettingsDialog({ onClose }: SettingsDialogProps) {
   const [sources, setSources] = useState<MovieSource[]>([])
   const [editingSource, setEditingSource] = useState<MovieSource | null>(null)
   const [showForm, setShowForm] = useState(false)
-  const [testResult, setTestResult] = useState<{ [key: number]: { status: string; message: string } }>({})
+  const [testResult, setTestResult] = useState<{ [key: number]: { status: string; message: string } | undefined }>({})
   const [testConfigResult, setTestConfigResult] = useState<{ status: string; message: string } | null>(null)
   const [isTesting, setIsTesting] = useState(false)
   const [showClearConfirm, setShowClearConfirm] = useState(false)
@@ -340,8 +340,8 @@ export function SettingsDialog({ onClose }: SettingsDialogProps) {
                     </div>
                     <div className="flex items-center gap-2">
                       {testResult[source.id] && (
-                        <span className={`text-caption ${testResult[source.id].status === 'online' ? 'text-success-text' : 'text-error-text'}`}>
-                          {testResult[source.id].message}
+                        <span className={`text-caption ${testResult[source.id]?.status === 'online' ? 'text-success-text' : 'text-error-text'}`}>
+                          {testResult[source.id]?.message}
                         </span>
                       )}
                       <button
