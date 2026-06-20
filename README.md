@@ -36,6 +36,14 @@
 
 ---
 
+![1.png](https://github.com/xujh1969/HomeVideoWeb/blob/main/assets/1.png?raw=true)
+
+![2.png](https://github.com/xujh1969/HomeVideoWeb/blob/main/assets/2.png?raw=true)
+
+![2.png](https://github.com/xujh1969/HomeVideoWeb/blob/main/assets/3.png?raw=true)
+
+![2.png](https://github.com/xujh1969/HomeVideoWeb/blob/main/assets/4.png?raw=true)
+
 ## 主要功能
 
 ### 📚 多源媒体库管理
