@@ -2,6 +2,7 @@
   "name": "home-movie-web",
   "version": "1.0.0",
   "description": "家庭影视平台 - 类似网易爆米花风格的家庭影视网站",
+  "type": "commonjs",
   "scripts": {
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
     "dev:server": "nodemon --watch server --ext ts --exec ts-node server/index.ts",
@@ -21,6 +22,7 @@
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "fs-extra": "^11.2.0",
+    "pinyin-pro": "^3.28.1",
     "sqlite": "^5.1.1",
     "sqlite3": "^6.0.1"
   },

@@ -9,6 +9,7 @@ export interface Movie {
   filename_genre: string | null
   title_cn: string | null
   title_en: string | null
+  search_key: string | null
 
   tmdb_id: number | null
   overview: string | null
@@ -42,6 +43,7 @@ export interface Series {
   title_cn: string | null
   title_en: string | null
   season_label: string | null
+  search_key: string | null
 
   tmdb_id: number | null
   overview: string | null
@@ -122,6 +124,7 @@ export interface MediaCardData {
   type: MediaType
   title_cn: string | null
   title_en: string | null
+  search_key: string | null
   filename_rating: number | null
   filename_genre: string | null
   imdb_rating: number | null
@@ -177,6 +180,10 @@ export interface WatchHistoryItem {
   local_poster?: string | null
   episode_number?: number
   season_number?: number
+  filename_genre?: string | null
+  filename_rating?: number | null
+  imdb_rating?: number | null
+  douban_rating?: number | null
 }
 
 export interface PaginatedMedia {

@@ -16,6 +16,7 @@ router.get('/cards', (req, res) => {
       'series' as type, 
       title_cn, 
       title_en, 
+      search_key,
       filename_rating, 
       filename_genre,
       imdb_rating,
@@ -51,8 +52,8 @@ router.get('/', (req, res) => {
   }
 
   if (search) {
-    whereClauses.push('(title_cn LIKE ? OR title_en LIKE ?)')
-    params.push(`%${search}%`, `%${search}%`)
+    whereClauses.push('(title_cn LIKE ? OR title_en LIKE ? OR search_key LIKE ?)')
+    params.push(`%${search}%`, `%${search}%`, `%${search}%`)
   }
 
   if (whereClauses.length > 0) {

@@ -71,6 +71,34 @@ function runMigrations(): void {
       console.error('[DB] Migration error for episodes:', e.message)
     }
   }
+
+  // 添加 search_key 列（用于拼音首字母搜索）
+  try {
+    db.exec("ALTER TABLE movies ADD COLUMN search_key TEXT")
+    console.log('[DB] Added search_key column to movies table')
+  } catch (e: any) {
+    if (!e.message.includes('duplicate column')) {
+      console.error('[DB] Migration error for movies search_key:', e.message)
+    }
+  }
+
+  try {
+    db.exec("ALTER TABLE series ADD COLUMN search_key TEXT")
+    console.log('[DB] Added search_key column to series table')
+  } catch (e: any) {
+    if (!e.message.includes('duplicate column')) {
+      console.error('[DB] Migration error for series search_key:', e.message)
+    }
+  }
+
+  // 创建 search_key 索引
+  try {
+    db.exec("CREATE INDEX IF NOT EXISTS idx_movies_search_key ON movies(search_key)")
+    db.exec("CREATE INDEX IF NOT EXISTS idx_series_search_key ON series(search_key)")
+    console.log('[DB] Created search_key indexes')
+  } catch (e: any) {
+    console.error('[DB] Error creating search_key indexes:', e.message)
+  }
 }
 
 export function initDatabase(): void {

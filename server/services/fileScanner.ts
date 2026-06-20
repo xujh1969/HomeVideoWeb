@@ -3,6 +3,7 @@ import path from 'path'
 import { db } from '../db'
 import { VIDEO_EXTS } from '../../shared/constants'
 import { parseFilename, parseDirName, parseEpisodeName } from './filenameParser'
+import { generateFullSearchKey } from './pinyinUtils'
 import type { MovieSource } from '../../shared/types'
 
 export interface ScanResult {
@@ -83,6 +84,7 @@ function addOrUpdateMovie(filePath: string, batchId: number): void {
   const stat = fs.statSync(filePath)
   const parsed = parseFilename(path.basename(filePath))
   const now = new Date().toISOString()
+  const searchKey = generateFullSearchKey(parsed.titleCN, parsed.titleEN)
 
   // 检查是否已存在
   const existingStmt = db.prepare('SELECT id, metadata_status FROM movies WHERE file_path = ?')
@@ -93,7 +95,7 @@ function addOrUpdateMovie(filePath: string, batchId: number): void {
     const updateStmt = db.prepare(`
       UPDATE movies SET 
         file_size = ?, file_mtime = ?, ext = ?,
-        filename_rating = ?, filename_genre = ?, title_cn = ?, title_en = ?,
+        filename_rating = ?, filename_genre = ?, title_cn = ?, title_en = ?, search_key = ?,
         batch_id = ?, updated_at = ?
       WHERE id = ?
     `)
@@ -105,6 +107,7 @@ function addOrUpdateMovie(filePath: string, batchId: number): void {
       parsed.genre,
       parsed.titleCN,
       parsed.titleEN,
+      searchKey,
       batchId,
       now,
       existing.id
@@ -114,9 +117,9 @@ function addOrUpdateMovie(filePath: string, batchId: number): void {
     const insertStmt = db.prepare(`
       INSERT INTO movies (
         file_path, file_size, file_mtime, ext,
-        filename_rating, filename_genre, title_cn, title_en,
+        filename_rating, filename_genre, title_cn, title_en, search_key,
         metadata_status, batch_id, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?)
     `)
     insertStmt.run(
       filePath,
@@ -127,6 +130,7 @@ function addOrUpdateMovie(filePath: string, batchId: number): void {
       parsed.genre,
       parsed.titleCN,
       parsed.titleEN,
+      searchKey,
       batchId,
       now
     )
@@ -137,6 +141,7 @@ function addOrUpdateSeries(dirPath: string, videoFiles: fs.Dirent[], batchId: nu
   const dirName = path.basename(dirPath)
   const parsed = parseDirName(dirName)
   const now = new Date().toISOString()
+  const searchKey = generateFullSearchKey(parsed.titleCN, parsed.titleEN)
 
   // 检查是否已存在
   const existingStmt = db.prepare('SELECT id, metadata_status FROM series WHERE dir_path = ?')
@@ -149,7 +154,7 @@ function addOrUpdateSeries(dirPath: string, videoFiles: fs.Dirent[], batchId: nu
     const updateStmt = db.prepare(`
       UPDATE series SET 
         season_count = ?, episode_count = ?,
-        filename_rating = ?, filename_genre = ?, title_cn = ?, title_en = ?, season_label = ?,
+        filename_rating = ?, filename_genre = ?, title_cn = ?, title_en = ?, season_label = ?, search_key = ?,
         batch_id = ?, updated_at = ?
       WHERE id = ?
     `)
@@ -161,6 +166,7 @@ function addOrUpdateSeries(dirPath: string, videoFiles: fs.Dirent[], batchId: nu
       parsed.titleCN,
       parsed.titleEN,
       parsed.seasonLabel,
+      searchKey,
       batchId,
       now,
       existing.id
@@ -171,9 +177,9 @@ function addOrUpdateSeries(dirPath: string, videoFiles: fs.Dirent[], batchId: nu
     const insertStmt = db.prepare(`
       INSERT INTO series (
         dir_path, season_count, episode_count,
-        filename_rating, filename_genre, title_cn, title_en, season_label,
+        filename_rating, filename_genre, title_cn, title_en, season_label, search_key,
         metadata_status, batch_id, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?)
     `)
     const result = insertStmt.run(
       dirPath,
@@ -184,6 +190,7 @@ function addOrUpdateSeries(dirPath: string, videoFiles: fs.Dirent[], batchId: nu
       parsed.titleCN,
       parsed.titleEN,
       parsed.seasonLabel,
+      searchKey,
       batchId,
       now
     )

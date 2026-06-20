@@ -15,6 +15,7 @@ router.get('/', (req, res) => {
       'movie' as type, 
       title_cn, 
       title_en, 
+      search_key,
       filename_rating, 
       filename_genre,
       imdb_rating,
@@ -41,7 +42,11 @@ router.get('/', (req, res) => {
       COALESCE(m.title_en, s.title_en) as title_en,
       COALESCE(m.local_poster, s.local_poster) as local_poster,
       e.episode_number,
-      e.season_number
+      e.season_number,
+      COALESCE(m.filename_genre, s.filename_genre) as filename_genre,
+      COALESCE(m.filename_rating, s.filename_rating) as filename_rating,
+      COALESCE(m.imdb_rating, s.imdb_rating) as imdb_rating,
+      COALESCE(m.douban_rating, s.douban_rating) as douban_rating
     FROM watch_history wh
     LEFT JOIN movies m ON wh.media_type = 'movie' AND wh.media_id = m.id
     LEFT JOIN episodes e ON wh.media_type = 'episode' AND wh.media_id = e.id
@@ -57,6 +62,7 @@ router.get('/', (req, res) => {
       'movie' as type, 
       title_cn, 
       title_en, 
+      search_key,
       filename_rating, 
       filename_genre,
       imdb_rating,
@@ -76,6 +82,7 @@ router.get('/', (req, res) => {
       'movie' as type, 
       title_cn, 
       title_en, 
+      search_key,
       filename_rating, 
       filename_genre,
       imdb_rating,
@@ -114,6 +121,7 @@ router.get('/hero', (req, res) => {
       'movie' as type, 
       title_cn, 
       title_en, 
+      search_key,
       filename_rating, 
       filename_genre,
       imdb_rating,
@@ -143,7 +151,11 @@ router.get('/recently-watched', (req, res) => {
       COALESCE(m.title_en, s.title_en) as title_en,
       COALESCE(m.local_poster, s.local_poster) as local_poster,
       e.episode_number,
-      e.season_number
+      e.season_number,
+      COALESCE(m.filename_genre, s.filename_genre) as filename_genre,
+      COALESCE(m.filename_rating, s.filename_rating) as filename_rating,
+      COALESCE(m.imdb_rating, s.imdb_rating) as imdb_rating,
+      COALESCE(m.douban_rating, s.douban_rating) as douban_rating
     FROM watch_history wh
     LEFT JOIN movies m ON wh.media_type = 'movie' AND wh.media_id = m.id
     LEFT JOIN episodes e ON wh.media_type = 'episode' AND wh.media_id = e.id
@@ -165,6 +177,7 @@ router.get('/latest', (req, res) => {
       'movie' as type, 
       title_cn, 
       title_en, 
+      search_key,
       filename_rating, 
       filename_genre,
       imdb_rating,

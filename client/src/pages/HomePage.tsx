@@ -44,12 +44,14 @@ export default function HomePage({ selectedGenre = '全部', selectedSection = '
       setError(null)
       try {
         if (selectedSection === 'home') {
-          const [homeResult, watchedResult] = await Promise.all([
+          const [homeResult, watchedResult, seriesResult] = await Promise.all([
             getHomeData(1, 1000),
-            getRecentlyWatched()
+            getRecentlyWatched(),
+            getSeries({ limit: 1000 })
           ])
           setData(homeResult)
           setRecentlyWatched(watchedResult)
+          setAllSeries(seriesResult.series)
         } else if (selectedSection === 'movies') {
           const result = await getMovies({ limit: 1000 })
           setAllMovies(result.movies)
@@ -69,7 +71,13 @@ export default function HomePage({ selectedGenre = '全部', selectedSection = '
 
   const allItems = useMemo(() => {
     if (selectedSection === 'home' && data) {
-      return data.library.items
+      const movies = data.library.items
+      const series = allSeries.map(s => ({
+        ...s,
+        type: 'series' as const,
+        release_date: s.first_air_date
+      })) as unknown as MediaCardData[]
+      return [...movies, ...series]
     }
     if (selectedSection === 'movies') {
       return allMovies as unknown as MediaCardData[]
@@ -92,7 +100,8 @@ export default function HomePage({ selectedGenre = '全部', selectedSection = '
       items = items.filter((item: MediaCardData) => {
         const titleCn = (item.title_cn || '').toLowerCase()
         const titleEn = (item.title_en || '').toLowerCase()
-        return titleCn.includes(query) || titleEn.includes(query)
+        const searchKey = (item.search_key || '').toLowerCase()
+        return titleCn.includes(query) || titleEn.includes(query) || searchKey.includes(query)
       })
     }
 

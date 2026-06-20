@@ -70,11 +70,28 @@ export function RecentlyWatched({ items }: RecentlyWatchedProps) {
               <h3 className="text-card-title text-ink font-semibold truncate">
                 {item.title_cn || item.title_en || '未知'}
               </h3>
-              {item.episode_number !== undefined && (
-                <p className="text-caption text-ink-muted">
-                  S{item.season_number}E{item.episode_number}
-                </p>
-              )}
+              <div className="flex items-center gap-2">
+                {item.filename_genre && (
+                  <span className="text-caption text-ink-muted">
+                    {item.filename_genre}
+                  </span>
+                )}
+                {item.douban_rating && (
+                  <span className="text-caption text-brand-coral font-medium">
+                    {item.douban_rating.toFixed(1)}
+                  </span>
+                )}
+                {item.imdb_rating && !item.douban_rating && (
+                  <span className="text-caption text-brand-coral font-medium">
+                    {item.imdb_rating.toFixed(1)}
+                  </span>
+                )}
+                {item.filename_rating && !item.douban_rating && !item.imdb_rating && (
+                  <span className="text-caption text-brand-coral font-medium">
+                    {item.filename_rating.toFixed(1)}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         ))}

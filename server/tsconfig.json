@@ -12,6 +12,7 @@
     "baseUrl": ".",
     "outDir": "../dist",
     "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "skipLibCheck": true
   },
   "include": ["**/*.ts", "../shared/**/*.ts"],
