@@ -36,13 +36,13 @@
 
 ---
 
-![1.png](https://github.com/xujh1969/HomeVideoWeb/blob/main/assets/1.png?raw=true)
+![movie.png](https://github.com/xujh1969/HomeVideoWeb/blob/main/assets/movie.png?raw=true)
 
-![2.png](https://github.com/xujh1969/HomeVideoWeb/blob/main/assets/2.png?raw=true)
+![detail.png](https://github.com/xujh1969/HomeVideoWeb/blob/main/assets/detail.png?raw=true)
 
-![2.png](https://github.com/xujh1969/HomeVideoWeb/blob/main/assets/3.png?raw=true)
+![series.png](https://github.com/xujh1969/HomeVideoWeb/blob/main/assets/series.png?raw=true)
 
-![2.png](https://github.com/xujh1969/HomeVideoWeb/blob/main/assets/4.png?raw=true)
+![search.png](https://github.com/xujh1969/HomeVideoWeb/blob/main/assets/search.png?raw=true)
 
 ## 主要功能
 
